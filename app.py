@@ -1,6 +1,6 @@
 """
 app.py — Streamlit UI for RAG Pipeline
-HexaWar GenAI Internship
+HexaWare GenAI Internship
 
 Author: Mahi Bhosale
 Date: 2025
@@ -31,14 +31,15 @@ from rag_pipeline import (
 
 # ─── Page Config ─────────────────────────────────────────────────────────────
 st.set_page_config(
-    page_title="RAG Pipeline — HexaWar",
+    page_title="RAG Pipeline — HexaWare",
     page_icon="🧠",
     layout="wide",
     initial_sidebar_state="expanded",
 )
 
 # ─── Custom CSS ───────────────────────────────────────────────────────────────
-st.markdown("""
+st.markdown(
+    """
 <style>
     @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Syne:wght@400;600;700;800&display=swap');
 
@@ -171,7 +172,10 @@ st.markdown("""
         font-family: 'JetBrains Mono', monospace;
     }
 </style>
-""", unsafe_allow_html=True)
+""",
+    unsafe_allow_html=True,
+)
+
 
 # ─── Session State ────────────────────────────────────────────────────────────
 def init_state():
@@ -181,16 +185,21 @@ def init_state():
         "pipeline_stats": {},
         "search_history": [],
         "db_type": "faiss",
+        "dynamic_examples": [],
     }
     for k, v in defaults.items():
         if k not in st.session_state:
             st.session_state[k] = v
 
+
 init_state()
 
 # ─── Header ──────────────────────────────────────────────────────────────────
 st.markdown('<div class="main-title">🧠 RAG Pipeline</div>', unsafe_allow_html=True)
-st.markdown('<div class="sub-title">PDF → Chunks → Embeddings → Vector DB → Search</div>', unsafe_allow_html=True)
+st.markdown(
+    '<div class="sub-title">PDF → Chunks → Embeddings → Vector DB → Search</div>',
+    unsafe_allow_html=True,
+)
 
 # ─── Sidebar ─────────────────────────────────────────────────────────────────
 with st.sidebar:
@@ -198,27 +207,35 @@ with st.sidebar:
 
     chunk_size = st.slider(
         "Chunk Size (chars)",
-        min_value=200, max_value=1000, value=500, step=50,
-        help="Size of each text chunk in characters"
+        min_value=200,
+        max_value=1000,
+        value=500,
+        step=50,
+        help="Size of each text chunk in characters",
     )
 
     chunk_overlap = st.slider(
         "Chunk Overlap (chars)",
-        min_value=0, max_value=200, value=50, step=10,
-        help="Overlap between consecutive chunks"
+        min_value=0,
+        max_value=200,
+        value=50,
+        step=10,
+        help="Overlap between consecutive chunks",
     )
 
     db_type = st.selectbox(
         "Vector Database",
         options=["faiss", "chroma"],
-        help="FAISS = faster | Chroma = more features"
+        help="FAISS = faster | Chroma = more features",
     )
     st.session_state.db_type = db_type
 
     top_k = st.slider(
         "Search Results (k)",
-        min_value=1, max_value=10, value=3,
-        help="Number of similar chunks to return"
+        min_value=1,
+        max_value=10,
+        value=3,
+        help="Number of similar chunks to return",
     )
 
     st.markdown("---")
@@ -227,7 +244,8 @@ with st.sidebar:
     if st.session_state.vector_db is not None:
         stats = st.session_state.pipeline_stats
         st.success("✅ Database Ready")
-        st.markdown(f"""
+        st.markdown(
+            f"""
         <div class="pipeline-flow">
         <span class="flow-step">Pages:</span> {stats.get('pages', '-')}<br>
         <span class="flow-step">Chunks:</span> {stats.get('chunks', '-')}<br>
@@ -235,20 +253,25 @@ with st.sidebar:
         <span class="flow-step">Dim:</span> 384<br>
         <span class="flow-step">DB:</span> {stats.get('db_type', '-').upper()}
         </div>
-        """, unsafe_allow_html=True)
+        """,
+            unsafe_allow_html=True,
+        )
     else:
         st.warning("⚠️ No database loaded")
 
     st.markdown("---")
     st.markdown("### ℹ️ About")
-    st.markdown("""
+    st.markdown(
+        """
     <div style="font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; color: #888;">
     Model: all-MiniLM-L6-v2<br>
     Framework: LangChain<br>
     Author: Mahi Bhosale<br>
-    HexaWar GenAI Internship
+    HexaWare GenAI Internship
     </div>
-    """, unsafe_allow_html=True)
+    """,
+        unsafe_allow_html=True,
+    )
 
     if st.button("🗑️ Reset Pipeline", use_container_width=True):
         st.session_state.vector_db = None
@@ -278,15 +301,18 @@ with tab1:
         uploaded_file = st.file_uploader(
             "Upload PDF Document",
             type=["pdf"],
-            help="Upload any PDF — research paper, notes, report, textbook"
+            help="Upload any PDF — research paper, notes, report, textbook",
         )
 
         if uploaded_file:
-            st.success(f"✅ Uploaded: **{uploaded_file.name}** ({uploaded_file.size / 1024:.1f} KB)")
+            st.success(
+                f"✅ Uploaded: **{uploaded_file.name}** ({uploaded_file.size / 1024:.1f} KB)"
+            )
 
     with col2:
         st.markdown("#### Pipeline Flow")
-        st.markdown("""
+        st.markdown(
+            """
         <div class="pipeline-flow">
         <span class="flow-step">1.</span> Load PDF<br>
         <span class="flow-step">2.</span> Chunk text<br>
@@ -294,11 +320,18 @@ with tab1:
         <span class="flow-step">4.</span> Store vectors<br>
         <span class="flow-step">5.</span> Ready to search!
         </div>
-        """, unsafe_allow_html=True)
+        """,
+            unsafe_allow_html=True,
+        )
 
     st.markdown("---")
 
-    if st.button("🚀 Run RAG Pipeline", type="primary", use_container_width=True, disabled=not uploaded_file):
+    if st.button(
+        "🚀 Run RAG Pipeline",
+        type="primary",
+        use_container_width=True,
+        disabled=not uploaded_file,
+    ):
 
         # Save uploaded file
         upload_dir = "/tmp/rag_uploads"
@@ -323,7 +356,9 @@ with tab1:
             progress.progress(35)
             chunks = chunk_documents(documents, chunk_size, chunk_overlap)
             progress.progress(50)
-            st.success(f"✅ Created **{len(chunks)} chunks** ({chunk_size} chars, {chunk_overlap} overlap)")
+            st.success(
+                f"✅ Created **{len(chunks)} chunks** ({chunk_size} chars, {chunk_overlap} overlap)"
+            )
 
             # Step 3: Embeddings
             status.info("🤖 Step 3/4 — Loading embedding model...")
@@ -353,6 +388,24 @@ with tab1:
                 "pdf_name": uploaded_file.name,
             }
 
+            # Generate dynamic example queries from chunk content
+            sample_chunks = chunks[:10]
+            dynamic_examples = []
+            for chunk in sample_chunks:
+                words = chunk.page_content.split()
+                if len(words) > 5:
+                    # Extract key phrase from chunk as example query
+                    key_phrase = " ".join(words[:6]).strip(".,;:")
+                    dynamic_examples.append(f"Tell me about {key_phrase}")
+            # Keep top 6 unique examples
+            seen = set()
+            unique_examples = []
+            for ex in dynamic_examples:
+                if ex not in seen:
+                    seen.add(ex)
+                    unique_examples.append(ex)
+            st.session_state.dynamic_examples = unique_examples[:6]
+
             status.empty()
             progress.empty()
 
@@ -362,29 +415,41 @@ with tab1:
 
             c1, c2, c3, c4 = st.columns(4)
             with c1:
-                st.markdown(f"""
+                st.markdown(
+                    f"""
                 <div class="stat-box">
                     <span class="stat-value">{len(documents)}</span>
                     <span class="stat-label">Pages Loaded</span>
-                </div>""", unsafe_allow_html=True)
+                </div>""",
+                    unsafe_allow_html=True,
+                )
             with c2:
-                st.markdown(f"""
+                st.markdown(
+                    f"""
                 <div class="stat-box">
                     <span class="stat-value">{len(chunks)}</span>
                     <span class="stat-label">Chunks Created</span>
-                </div>""", unsafe_allow_html=True)
+                </div>""",
+                    unsafe_allow_html=True,
+                )
             with c3:
-                st.markdown(f"""
+                st.markdown(
+                    f"""
                 <div class="stat-box">
                     <span class="stat-value">384</span>
                     <span class="stat-label">Vector Dims</span>
-                </div>""", unsafe_allow_html=True)
+                </div>""",
+                    unsafe_allow_html=True,
+                )
             with c4:
-                st.markdown(f"""
+                st.markdown(
+                    f"""
                 <div class="stat-box">
                     <span class="stat-value">{db_type.upper()}</span>
                     <span class="stat-label">Database Type</span>
-                </div>""", unsafe_allow_html=True)
+                </div>""",
+                    unsafe_allow_html=True,
+                )
 
             st.info("👉 Go to the **Search** tab to query your document!")
 
@@ -399,42 +464,64 @@ with tab1:
 # ════════════════════════════════════════════════════════════════════════════
 with tab2:
     st.markdown("## Semantic Search")
-    st.markdown("Ask any question — the system finds the most relevant chunks from your document.")
+    st.markdown(
+        "Ask any question — the system finds the most relevant chunks from your document."
+    )
 
     if st.session_state.vector_db is None:
-        st.warning("⚠️ No vector database loaded. Please build an index in the **Build Index** tab first.")
+        st.warning(
+            "⚠️ No vector database loaded. Please build an index in the **Build Index** tab first."
+        )
     else:
         stats = st.session_state.pipeline_stats
-        st.info(f"🗄️ Database ready — **{stats.get('pdf_name', 'document')}** | {stats.get('chunks', 0)} vectors | {stats.get('db_type', 'faiss').upper()}")
+        st.info(
+            f"🗄️ Database ready — **{stats.get('pdf_name', 'document')}** | {stats.get('chunks', 0)} vectors | {stats.get('db_type', 'faiss').upper()}"
+        )
 
         query = st.text_input(
             "Enter your search query",
             placeholder="e.g. What is gradient descent? | Explain decision trees | What is regularization?",
-            label_visibility="collapsed"
+            label_visibility="collapsed",
         )
 
         col_search, col_clear = st.columns([3, 1])
         with col_search:
-            search_btn = st.button("🔍 Search", type="primary", use_container_width=True, disabled=not query.strip())
+            search_btn = st.button(
+                "🔍 Search",
+                type="primary",
+                use_container_width=True,
+                disabled=not query.strip(),
+            )
         with col_clear:
             if st.button("Clear History", use_container_width=True):
                 st.session_state.search_history = []
                 st.rerun()
 
+        # Dynamic or default examples
+        default_examples = [
+            "What is the main topic?",
+            "Explain the key concepts",
+            "What is the introduction about?",
+            "Summarize the important points",
+            "What are the conclusions?",
+            "Explain the methodology",
+        ]
+        examples = (
+            st.session_state.dynamic_examples
+            if st.session_state.dynamic_examples
+            else default_examples
+        )
+
         # Example queries
         st.markdown("**Quick examples:**")
         ex_cols = st.columns(3)
-        examples = [
-            "What is gradient descent?",
-            "Explain decision trees",
-            "What is regularization?",
-            "How does KNN work?",
-            "What is random forest?",
-            "Explain logistic regression",
-        ]
         for i, ex in enumerate(examples):
             with ex_cols[i % 3]:
-                if st.button(f"💬 {ex}", key=f"ex_{i}", use_container_width=True):
+                if st.button(
+                    f"💬 {ex[:35]}{'...' if len(ex) > 35 else ''}",
+                    key=f"ex_{i}",
+                    use_container_width=True,
+                ):
                     query = ex
                     search_btn = True
 
@@ -448,23 +535,28 @@ with tab2:
                     elapsed = time.time() - start_time
 
                     # Save to history
-                    st.session_state.search_history.append({
-                        "query": query,
-                        "results": results,
-                        "time": elapsed,
-                        "k": top_k
-                    })
+                    st.session_state.search_history.append(
+                        {
+                            "query": query,
+                            "results": results,
+                            "time": elapsed,
+                            "k": top_k,
+                        }
+                    )
 
                     st.markdown(f"---")
-                    st.markdown(f"**Results for:** `{query}` — found in `{elapsed:.3f}s`")
+                    st.markdown(
+                        f"**Results for:** `{query}` — found in `{elapsed:.3f}s`"
+                    )
                     st.markdown("")
 
                     for i, (doc, score) in enumerate(results, 1):
-                        page = doc.metadata.get('page', 'N/A')
+                        page = doc.metadata.get("page", "N/A")
                         # Convert distance to similarity (lower distance = higher similarity)
                         similarity = max(0, 1 - score) if score > 0 else 1.0
 
-                        st.markdown(f"""
+                        st.markdown(
+                            f"""
                         <div class="result-card">
                             <div style="margin-bottom: 0.5rem;">
                                 <span style="color: #00ff88; font-weight: 600;">Result {i}</span>
@@ -477,7 +569,9 @@ with tab2:
                                 {doc.page_content[:400]}{'...' if len(doc.page_content) > 400 else ''}
                             </div>
                         </div>
-                        """, unsafe_allow_html=True)
+                        """,
+                            unsafe_allow_html=True,
+                        )
 
                 except Exception as e:
                     st.error(f"❌ Search failed: {e}")
@@ -496,10 +590,13 @@ with tab3:
         st.markdown("---")
 
         for i, item in enumerate(reversed(st.session_state.search_history), 1):
-            with st.expander(f"🔍 {item['query']} — {item['time']:.3f}s — {item['k']} results"):
-                for j, (doc, score) in enumerate(item['results'], 1):
-                    page = doc.metadata.get('page', 'N/A')
-                    st.markdown(f"""
+            with st.expander(
+                f"🔍 {item['query']} — {item['time']:.3f}s — {item['k']} results"
+            ):
+                for j, (doc, score) in enumerate(item["results"], 1):
+                    page = doc.metadata.get("page", "N/A")
+                    st.markdown(
+                        f"""
                     <div class="result-card">
                         <div style="margin-bottom: 0.5rem;">
                             <span style="color: #00ff88;">Result {j}</span>
@@ -510,4 +607,6 @@ with tab3:
                         </div>
                         <div style="color: #ccc;">{doc.page_content[:300]}...</div>
                     </div>
-                    """, unsafe_allow_html=True)
+                    """,
+                        unsafe_allow_html=True,
+                    )
