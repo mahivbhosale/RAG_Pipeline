@@ -44,7 +44,7 @@ Ask question → Get relevant paragraph ✅
 ### 1. Clone the repository
 ```bash
 git clone https://github.com/mahivbhosale/rag-pipeline-hexaware.git
-cd rag-pipeline-hexawar
+cd rag-pipeline-hexaware
 ```
 
 ### 2. Create virtual environment
@@ -111,7 +111,7 @@ DB saved to     : ./vector_db/faiss_index
 ## 📁 Project Structure
 
 ```
-rag-pipeline-hexawar/
+rag-pipeline-hexaware/
 ├── rag_pipeline.py         ← Main pipeline code
 ├── test_rag_pipeline.py    ← Complete test suite
 ├── requirements.txt        ← All dependencies
