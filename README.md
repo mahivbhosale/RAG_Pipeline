@@ -1,7 +1,8 @@
 # 🧠 RAG Pipeline — PDF to Vector Database
 
 > **HexaWare GenAI Internship Task**
-> Built by: Mahi Bhosale
+> 👤 Author: Mahi Bhosale
+> 🔗 Repo: https://github.com/mahivbhosale/RAG_Pipeline
 
 A complete **RAG (Retrieval-Augmented Generation) indexing pipeline** that transforms any PDF document into a searchable vector database using LangChain, HuggingFace, and FAISS/Chroma.
 
