@@ -23,8 +23,7 @@ from langchain_core.documents import Document
 # ============================================
 
 logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s - %(levelname)s - %(message)s"
+    level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
 
@@ -32,17 +31,18 @@ logger = logging.getLogger(__name__)
 # CONFIGURATION - Change these as needed
 # ============================================
 
-PDF_FILE_PATH = "ml_notes.pdf"   # Path to your PDF file
-CHUNK_SIZE = 500                  # Size of each chunk in characters
-CHUNK_OVERLAP = 50                # Overlap between chunks for context
+PDF_FILE_PATH = "ml_notes.pdf"  # Path to your PDF file
+CHUNK_SIZE = 500  # Size of each chunk in characters
+CHUNK_OVERLAP = 50  # Overlap between chunks for context
 EMBEDDING_MODEL = "sentence-transformers/all-MiniLM-L6-v2"  # Fast & accurate
-DB_TYPE = "faiss"                 # Choose: "faiss" or "chroma"
-DB_FOLDER = "./vector_db"         # Where to save the vector database
+DB_TYPE = "faiss"  # Choose: "faiss" or "chroma"
+DB_FOLDER = "./vector_db"  # Where to save the vector database
 
 
 # ============================================
 # STEP 1: Load PDF and Extract Text
 # ============================================
+
 
 def load_pdf(pdf_path: str) -> List[Document]:
     """
@@ -53,7 +53,7 @@ def load_pdf(pdf_path: str) -> List[Document]:
 
     Returns:
         List of Document objects, one per page
-    
+
     Raises:
         FileNotFoundError: If PDF does not exist at given path
     """
@@ -79,6 +79,7 @@ def load_pdf(pdf_path: str) -> List[Document]:
 # ============================================
 # STEP 2: Perform Recursive Character Chunking
 # ============================================
+
 
 def chunk_documents(
     documents: List[Document],
@@ -111,11 +112,24 @@ def chunk_documents(
         separators=["\n\n", "\n", " ", ""],  # Priority order for splitting
     )
 
+    # Filter out empty pages before chunking
+    documents = [d for d in documents if d.page_content.strip()]
+
     chunks = splitter.split_documents(documents)
+
+    # Filter out empty chunks
+    chunks = [c for c in chunks if c.page_content.strip()]
+
+    if not chunks:
+        raise ValueError(
+            "No text could be extracted from the PDF. Please upload a text-based PDF (not scanned images)."
+        )
 
     lengths = [len(c.page_content) for c in chunks]
     print(f"✅ Created {len(chunks)} chunks")
-    print(f"   Min: {min(lengths)} chars | Max: {max(lengths)} chars | Avg: {sum(lengths)//len(lengths)} chars")
+    print(
+        f"   Min: {min(lengths)} chars | Max: {max(lengths)} chars | Avg: {sum(lengths)//len(lengths)} chars"
+    )
 
     logger.info(f"Created {len(chunks)} chunks from {len(documents)} pages")
     return chunks
@@ -124,6 +138,7 @@ def chunk_documents(
 # ============================================
 # STEP 3: Create Embeddings using HuggingFace
 # ============================================
+
 
 def create_embeddings(model_name: str = EMBEDDING_MODEL) -> HuggingFaceEmbeddings:
     """
@@ -155,10 +170,9 @@ def create_embeddings(model_name: str = EMBEDDING_MODEL) -> HuggingFaceEmbedding
 # STEP 4a: Store in FAISS Vector Database
 # ============================================
 
+
 def create_vector_db_faiss(
-    chunks: List[Document],
-    embeddings: HuggingFaceEmbeddings,
-    db_path: str = DB_FOLDER
+    chunks: List[Document], embeddings: HuggingFaceEmbeddings, db_path: str = DB_FOLDER
 ) -> FAISS:
     """
     Create and persist a FAISS vector database from document chunks.
@@ -197,10 +211,9 @@ def create_vector_db_faiss(
 # STEP 4b: Store in Chroma Vector Database
 # ============================================
 
+
 def create_vector_db_chroma(
-    chunks: List[Document],
-    embeddings: HuggingFaceEmbeddings,
-    db_path: str = DB_FOLDER
+    chunks: List[Document], embeddings: HuggingFaceEmbeddings, db_path: str = DB_FOLDER
 ) -> Chroma:
     """
     Create and persist a Chroma vector database from document chunks.
@@ -225,9 +238,7 @@ def create_vector_db_chroma(
     save_path = f"{db_path}/chroma_db"
 
     vector_db = Chroma.from_documents(
-        documents=chunks,
-        embedding=embeddings,
-        persist_directory=save_path
+        documents=chunks, embedding=embeddings, persist_directory=save_path
     )
 
     print(f"✅ Chroma database saved to: {save_path}")
@@ -241,10 +252,11 @@ def create_vector_db_chroma(
 # STEP 5: Load Existing Vector Database
 # ============================================
 
+
 def load_vector_db(
     db_type: str = DB_TYPE,
     embeddings: HuggingFaceEmbeddings = None,
-    db_path: str = DB_FOLDER
+    db_path: str = DB_FOLDER,
 ):
     """
     Load a previously saved vector database from disk.
@@ -267,17 +279,12 @@ def load_vector_db(
         load_path = f"{db_path}/faiss_index"
         print(f"📂 Loading FAISS database from: {load_path}")
         vector_db = FAISS.load_local(
-            load_path,
-            embeddings,
-            allow_dangerous_deserialization=True
+            load_path, embeddings, allow_dangerous_deserialization=True
         )
     elif db_type == "chroma":
         load_path = f"{db_path}/chroma_db"
         print(f"📂 Loading Chroma database from: {load_path}")
-        vector_db = Chroma(
-            persist_directory=load_path,
-            embedding_function=embeddings
-        )
+        vector_db = Chroma(persist_directory=load_path, embedding_function=embeddings)
     else:
         raise ValueError(f"Unknown db_type: '{db_type}'. Use 'faiss' or 'chroma'.")
 
@@ -289,6 +296,7 @@ def load_vector_db(
 # ============================================
 # STEP 6: Search and Query Vector Database
 # ============================================
+
 
 def search_vector_db(vector_db, query: str, k: int = 3) -> list:
     """
@@ -313,7 +321,9 @@ def search_vector_db(vector_db, query: str, k: int = 3) -> list:
         print(f"✅ Found {len(results_with_scores)} results:\n")
 
         for i, (doc, score) in enumerate(results_with_scores, 1):
-            print(f"--- Result {i} | Page: {doc.metadata.get('page', 'N/A')} | Score: {score:.4f} ---")
+            print(
+                f"--- Result {i} | Page: {doc.metadata.get('page', 'N/A')} | Score: {score:.4f} ---"
+            )
             print(f"{doc.page_content[:300]}...")
             print()
 
@@ -335,6 +345,7 @@ def search_vector_db(vector_db, query: str, k: int = 3) -> list:
 # ============================================
 # COMPLETE PIPELINE RUNNER
 # ============================================
+
 
 def run_complete_pipeline(
     pdf_path: str,
