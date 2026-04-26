@@ -1,4 +1,5 @@
 # 🧠 RAG Pipeline — PDF to Vector Database
+🔗 **Live Demo:** https://rag-pipeline-hexaware.streamlit.app
 
 > **HexaWare GenAI Internship Task**
 > 👤 Author: Mahi Bhosale
